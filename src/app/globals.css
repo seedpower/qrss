@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f4efe6;
+  --cream: #f7f1e8;
+  --ink: #1c1917;
+  --rust: #c2410c;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-cream: var(--cream);
+  --color-ink: var(--ink);
+  --color-rust: var(--rust);
+  --font-sans: var(--font-geist-sans), "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans SC", sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", "Songti SC",
+    "Noto Serif SC", serif;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.prose-rss {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.prose-rss p,
+.prose-rss ul,
+.prose-rss ol,
+.prose-rss blockquote,
+.prose-rss pre,
+.prose-rss figure {
+  margin: 1.1em 0;
+}
+
+.prose-rss h1,
+.prose-rss h2,
+.prose-rss h3 {
+  font-family: var(--font-serif);
+  margin: 1.4em 0 0.5em;
+  line-height: 1.3;
+}
+
+.prose-rss a {
+  color: var(--rust);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-rss img,
+.prose-rss video,
+.prose-rss iframe {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+}
+
+.prose-rss iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.prose-rss blockquote {
+  border-left: 3px solid var(--rust);
+  padding-left: 1rem;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+
+.prose-rss pre {
+  overflow-x: auto;
+  background: #1c1917;
+  color: #f7f1e8;
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
