@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatRelativeTime } from "@/lib/format";
 import type { Item } from "@/lib/types";
+import { GeminiSummaryLink } from "./GeminiSummaryLink";
 
 export function VideoGrid({ items }: { items: Item[] }) {
   const router = useRouter();
@@ -66,6 +67,11 @@ export function VideoGrid({ items }: { items: Item[] }) {
             </Link>
             <span> · {formatRelativeTime(item.publishedAt)}</span>
           </p>
+          {item.videoId && (
+            <div className="mt-2">
+              <GeminiSummaryLink videoId={item.videoId} />
+            </div>
+          )}
         </article>
       ))}
     </div>

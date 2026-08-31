@@ -2,6 +2,7 @@ import Link from "next/link";
 import { after } from "next/server";
 import { notFound } from "next/navigation";
 import { ItemActions } from "@/components/ItemActions";
+import { GeminiSummaryLink } from "@/components/GeminiSummaryLink";
 import { formatAbsoluteTime, kindLabel } from "@/lib/format";
 import { getItem, updateItem } from "@/lib/queries";
 import { sanitizeContent } from "@/lib/sanitize";
@@ -38,14 +39,22 @@ export default async function ItemPage({
       <h1 className="mt-3 font-serif text-4xl leading-tight text-ink">{item.title}</h1>
       <div className="mt-5 flex items-center justify-between gap-3">
         <ItemActions item={{ ...item, read: true }} />
-        <a
-          href={item.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-rust hover:underline"
-        >
-          打开原文
-        </a>
+        <div className="flex items-center gap-3">
+          {item.kind === "youtube" && item.videoId && (
+            <GeminiSummaryLink
+              videoId={item.videoId}
+              className="inline-flex rounded-full border border-ink/15 px-3 py-1 text-sm text-ink/70 hover:border-rust/40 hover:text-rust"
+            />
+          )}
+          <a
+            href={item.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-rust hover:underline"
+          >
+            打开原文
+          </a>
+        </div>
       </div>
 
       {item.kind === "youtube" && item.videoId && (

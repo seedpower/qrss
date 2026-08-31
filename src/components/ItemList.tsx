@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatRelativeTime, kindLabel } from "@/lib/format";
 import type { Item } from "@/lib/types";
+import { GeminiSummaryLink } from "./GeminiSummaryLink";
 import { ItemActions } from "./ItemActions";
 
 export function ItemRow({
@@ -72,14 +73,19 @@ export function ItemRow({
           )}
           <div className="mt-3 flex items-center justify-between gap-3">
             <ItemActions item={item} />
-            <a
-              href={item.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-ink/45 hover:text-rust"
-            >
-              原文
-            </a>
+            <div className="flex items-center gap-2">
+              {item.kind === "youtube" && item.videoId && (
+                <GeminiSummaryLink videoId={item.videoId} />
+              )}
+              <a
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-ink/45 hover:text-rust"
+              >
+                原文
+              </a>
+            </div>
           </div>
         </div>
       </div>

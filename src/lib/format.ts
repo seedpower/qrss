@@ -36,3 +36,11 @@ export function kindLabel(kind: string) {
   if (kind === "podcast") return "播客";
   return "文章";
 }
+
+export function youtubeWatchUrl(videoId: string) {
+  return `https://www.youtube.com/watch?v=${videoId}`;
+}
+
+export function geminiVideoSummaryUrl(videoId: string) {
+  return `https://gemini.google.com/app?input=使用文字讲述视频内容:${youtubeWatchUrl(videoId)}`;
+}
