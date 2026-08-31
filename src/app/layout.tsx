@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { Suspense } from "react";
 import { Nav } from "@/components/Nav";
 import { navCounts } from "@/lib/queries";
 import "./globals.css";
@@ -7,6 +8,7 @@ import "./globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -16,18 +18,25 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
+async function NavWithCounts() {
   let counts = { unread: 0, starred: 0, feeds: 0 };
   try {
     counts = await navCounts();
   } catch {
     counts = { unread: 0, starred: 0, feeds: 0 };
   }
+  return (
+    <Nav unread={counts.unread} starred={counts.starred} feeds={counts.feeds} />
+  );
+}
 
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="zh-CN" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full bg-paper text-ink">
-        <Nav unread={counts.unread} starred={counts.starred} feeds={counts.feeds} />
+        <Suspense fallback={<Nav unread={0} starred={0} feeds={0} />}>
+          <NavWithCounts />
+        </Suspense>
         <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">{children}</main>
       </body>
     </html>

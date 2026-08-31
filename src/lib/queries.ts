@@ -1,4 +1,5 @@
 import { ObjectId, type Filter } from "mongodb";
+import { cache } from "react";
 import { getDb } from "./mongodb";
 import {
   ensureIndexes,
@@ -38,7 +39,7 @@ function serializeItem(doc: ItemDoc): Item {
     title: doc.title,
     link: doc.link,
     summary: doc.summary,
-    content: doc.content,
+    content: doc.content ?? "",
     author: doc.author,
     publishedAt: doc.publishedAt.toISOString(),
     kind: doc.kind,
@@ -51,11 +52,11 @@ function serializeItem(doc: ItemDoc): Item {
   };
 }
 
-export async function withDb() {
+export const withDb = cache(async () => {
   const db = await getDb();
   await ensureIndexes(db);
   return db;
-}
+});
 
 async function refreshCounts(feedId: ObjectId) {
   const db = await withDb();
@@ -132,19 +133,27 @@ export async function getFeed(id: string) {
   return doc ? serializeFeed(doc) : null;
 }
 
-export async function addFeed(rawUrl: string) {
+export async function addFeed(
+  rawUrl: string,
+  options?: { title?: string; skipIfExists?: boolean },
+) {
   const { feedUrl, sourceUrl } = await resolveFeedUrl(rawUrl);
-  const parsed = await fetchAndParseFeed(feedUrl);
   const db = await withDb();
   const feeds = feedsCol(db);
   const existing = await feeds.findOne({ url: feedUrl });
+  if (existing && options?.skipIfExists) {
+    return { feed: serializeFeed(existing), created: false };
+  }
+
+  const parsed = await fetchAndParseFeed(feedUrl);
+  const title = options?.title?.trim() || parsed.title;
   if (existing) {
     await upsertItems(existing, parsed.items);
     await feeds.updateOne(
       { _id: existing._id },
       {
         $set: {
-          title: parsed.title,
+          title,
           description: parsed.description,
           siteUrl: parsed.siteUrl,
           imageUrl: parsed.imageUrl,
@@ -163,7 +172,7 @@ export async function addFeed(rawUrl: string) {
   const doc: Omit<FeedDoc, "_id"> = {
     url: feedUrl,
     sourceUrl,
-    title: parsed.title,
+    title,
     description: parsed.description,
     siteUrl: parsed.siteUrl,
     imageUrl: parsed.imageUrl,
@@ -273,7 +282,7 @@ export async function listItems(query: ItemQuery = {}) {
 
   const limit = Math.min(Math.max(query.limit ?? 30, 1), 60);
   const docs = await itemsCol(db)
-    .find(filter)
+    .find(filter, { projection: { content: 0 } })
     .sort({ publishedAt: -1, _id: -1 })
     .limit(limit)
     .toArray();
@@ -331,13 +340,25 @@ export async function countUnread(kind?: FeedKind) {
 
 export async function navCounts() {
   const db = await withDb();
-  const items = itemsCol(db);
-  const [unread, starred, feeds] = await Promise.all([
-    items.countDocuments({ read: false }),
-    items.countDocuments({ starred: true }),
-    feedsCol(db).countDocuments(),
+  const [feedAgg, starred] = await Promise.all([
+    feedsCol(db)
+      .aggregate<{ unread: number; feeds: number }>([
+        {
+          $group: {
+            _id: null,
+            unread: { $sum: "$unreadCount" },
+            feeds: { $sum: 1 },
+          },
+        },
+      ])
+      .next(),
+    itemsCol(db).countDocuments({ starred: true }),
   ]);
-  return { unread, starred, feeds };
+  return {
+    unread: feedAgg?.unread ?? 0,
+    starred,
+    feeds: feedAgg?.feeds ?? 0,
+  };
 }
 
 function escapeRegex(value: string) {

@@ -12,10 +12,11 @@ export default async function FeedDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const feed = await getFeed(id);
+  const [feed, items] = await Promise.all([
+    getFeed(id),
+    listItems({ feedId: id, limit: 30 }),
+  ]);
   if (!feed) notFound();
-
-  const items = await listItems({ feedId: id, limit: 30 });
 
   return (
     <section>

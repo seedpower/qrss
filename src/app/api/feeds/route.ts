@@ -15,11 +15,18 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { url?: string };
+    const body = (await request.json()) as {
+      url?: string;
+      title?: string;
+      skipIfExists?: boolean;
+    };
     if (!body.url?.trim()) {
       return NextResponse.json({ error: "请输入订阅地址" }, { status: 400 });
     }
-    const result = await addFeed(body.url);
+    const result = await addFeed(body.url, {
+      title: body.title,
+      skipIfExists: body.skipIfExists,
+    });
     return NextResponse.json(result, { status: result.created ? 201 : 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "添加订阅失败";

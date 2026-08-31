@@ -35,8 +35,10 @@ export async function getMongoClient(): Promise<MongoClient> {
   // serverless or idle-dev scenarios.
   const client = new MongoClient(mongoUri(), {
     maxPoolSize: 10,
-    minPoolSize: 0,
-    maxIdleTimeMS: 30_000,
+    // Long-running Next.js process: keep one socket so an idle tab
+    // doesn't pay TCP + auth again on the next page load.
+    minPoolSize: 1,
+    maxIdleTimeMS: 60_000,
     serverSelectionTimeoutMS: 5_000,
   });
 

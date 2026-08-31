@@ -19,7 +19,7 @@ export function VideoGrid({ items }: { items: Item[] }) {
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <article key={item.id} className={item.read ? "opacity-75" : ""}>
           <Link
             href={`/items/${item.id}`}
@@ -31,6 +31,11 @@ export function VideoGrid({ items }: { items: Item[] }) {
                 <img
                   src={item.thumbnail}
                   alt=""
+                  width={640}
+                  height={360}
+                  loading={index < 6 ? "eager" : "lazy"}
+                  decoding="async"
+                  fetchPriority={index < 3 ? "high" : "low"}
                   className="h-full w-full object-cover"
                 />
               ) : (

@@ -6,7 +6,13 @@ import { formatRelativeTime, kindLabel } from "@/lib/format";
 import type { Item } from "@/lib/types";
 import { ItemActions } from "./ItemActions";
 
-export function ItemRow({ item }: { item: Item }) {
+export function ItemRow({
+  item,
+  priority = false,
+}: {
+  item: Item;
+  priority?: boolean;
+}) {
   const router = useRouter();
 
   function markRead() {
@@ -30,6 +36,11 @@ export function ItemRow({ item }: { item: Item }) {
             <img
               src={item.thumbnail}
               alt=""
+              width={160}
+              height={96}
+              loading={priority ? "eager" : "lazy"}
+              decoding="async"
+              fetchPriority={priority ? "high" : "low"}
               className="h-20 w-32 rounded-lg object-cover sm:h-24 sm:w-40"
             />
           </Link>
@@ -79,8 +90,8 @@ export function ItemRow({ item }: { item: Item }) {
 export function ItemList({ items }: { items: Item[] }) {
   return (
     <div className="divide-y-0">
-      {items.map((item) => (
-        <ItemRow key={item.id} item={item} />
+      {items.map((item, index) => (
+        <ItemRow key={item.id} item={item} priority={index < 3} />
       ))}
     </div>
   );

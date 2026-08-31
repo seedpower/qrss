@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { after } from "next/server";
 import { notFound } from "next/navigation";
 import { ItemActions } from "@/components/ItemActions";
 import { formatAbsoluteTime, kindLabel } from "@/lib/format";
@@ -17,11 +18,9 @@ export default async function ItemPage({
   if (!item) notFound();
 
   if (!item.read) {
-    try {
-      await updateItem(id, { read: true });
-    } catch {
-      // ignore
-    }
+    after(() => {
+      void updateItem(id, { read: true }).catch(() => {});
+    });
   }
 
   const html = sanitizeContent(item.content);
@@ -57,6 +56,7 @@ export default async function ItemPage({
             className="aspect-video w-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
+            loading="lazy"
           />
         </div>
       )}
@@ -67,6 +67,9 @@ export default async function ItemPage({
             <img
               src={item.thumbnail}
               alt=""
+              width={160}
+              height={160}
+              decoding="async"
               className="mb-4 h-40 w-40 rounded-xl object-cover"
             />
           )}
@@ -80,6 +83,9 @@ export default async function ItemPage({
         <img
           src={item.thumbnail}
           alt=""
+          width={800}
+          height={450}
+          decoding="async"
           className="mt-8 w-full rounded-2xl object-cover"
         />
       )}
