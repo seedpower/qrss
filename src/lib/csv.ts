@@ -84,6 +84,21 @@ function headerIndex(headers: string[], aliases: Set<string>) {
   return headers.findIndex((header) => aliases.has(header.trim().toLowerCase()));
 }
 
+function csvField(value: string) {
+  if (/[",\n\r]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
+export function serializeFeedCsv(rows: CsvFeedRow[]): string {
+  const lines = [
+    "name,rss",
+    ...rows.map((row) => `${csvField(row.name)},${csvField(row.url)}`),
+  ];
+  return `${lines.join("\n")}\n`;
+}
+
 export function parseFeedCsv(text: string): CsvFeedRow[] {
   const table = parseCsv(text);
   if (table.length === 0) return [];

@@ -193,9 +193,18 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
           >
             导入 CSV
           </button>
+          <a
+            href="/api/feeds/export"
+            className={`rounded-full border border-ink/15 px-4 py-2 text-sm hover:border-rust/40 hover:text-rust ${
+              feeds.length === 0 ? "pointer-events-none opacity-50" : ""
+            }`}
+            aria-disabled={feeds.length === 0}
+          >
+            导出 CSV
+          </a>
           <p className="text-xs text-ink/50">
             两列 <code className="text-ink/70">name,rss</code>
-            ，已订阅的会跳过。UTF-8 编码。
+            ，导入时已订阅的会跳过。UTF-8 编码。
           </p>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
