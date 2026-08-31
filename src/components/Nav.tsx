@@ -46,9 +46,25 @@ export function Nav({ unread, starred, feeds }: NavProps) {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-ink/95 text-cream backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-4">
-          <Link href="/" className="shrink-0 tracking-tight">
-            <span className="font-serif text-xl italic text-cream">Q</span>
-            <span className="font-serif text-xl text-cream">RSS</span>
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-2 tracking-tight"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 32 32"
+              className="h-7 w-7"
+              aria-hidden
+            >
+              <path
+                fill="#2563eb"
+                fillRule="evenodd"
+                d="M16 0a16 16 0 1 1 0 32A16 16 0 0 1 16 0Zm-6.2 7.2h7.1c4.05 0 6.7 2.25 6.7 5.65 0 2.4-1.3 4.2-3.55 5.1L25 24.8h-4.55l-4.9-6.5h-2.55v6.5H9.8V7.2Zm3.5 2.7v4.5h3.35c1.9 0 3.05-.9 3.05-2.25s-1.15-2.25-3.05-2.25H13.3Z"
+              />
+            </svg>
+            <span className="font-serif text-xl text-cream">
+              <span className="italic">Q</span>RSS
+            </span>
           </Link>
 
           <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
