@@ -5,6 +5,7 @@ import {
   ensureIndexes,
   feedsCol,
   itemsCol,
+  settingsCol,
   type FeedDoc,
   type ItemDoc,
 } from "./models";
@@ -232,23 +233,53 @@ export async function refreshFeed(id: string) {
 }
 
 export async function refreshAllFeeds() {
-  const db = await withDb();
-  const feeds = await feedsCol(db).find({}).toArray();
-  const results = [];
-  for (const feed of feeds) {
-    try {
-      const updated = await refreshFeed(feed._id.toString());
-      results.push({ id: updated.id, ok: true as const, title: updated.title });
-    } catch (error) {
-      results.push({
-        id: feed._id.toString(),
-        ok: false as const,
-        title: feed.title,
-        error: error instanceof Error ? error.message : "刷新失败",
-      });
+  type RefreshResult =
+    | { id: string; ok: true; title: string }
+    | { id: string; ok: false; title: string; error: string };
+  const globalForRefresh = globalThis as typeof globalThis & {
+    _qrssRefreshAll?: Promise<RefreshResult[]>;
+  };
+  if (globalForRefresh._qrssRefreshAll) return globalForRefresh._qrssRefreshAll;
+
+  globalForRefresh._qrssRefreshAll = (async () => {
+    const db = await withDb();
+    const feeds = await feedsCol(db).find({}).toArray();
+    const results = [];
+    for (const feed of feeds) {
+      try {
+        const updated = await refreshFeed(feed._id.toString());
+        results.push({ id: updated.id, ok: true as const, title: updated.title });
+      } catch (error) {
+        results.push({
+          id: feed._id.toString(),
+          ok: false as const,
+          title: feed.title,
+          error: error instanceof Error ? error.message : "刷新失败",
+        });
+      }
     }
-  }
-  return results;
+    return results;
+  })().finally(() => {
+    globalForRefresh._qrssRefreshAll = undefined;
+  });
+
+  return globalForRefresh._qrssRefreshAll;
+}
+
+export async function getAppSettings() {
+  const db = await withDb();
+  const doc = await settingsCol(db).findOne({ _id: "app" });
+  return { autoRefresh: Boolean(doc?.autoRefresh) };
+}
+
+export async function setAutoRefresh(enabled: boolean) {
+  const db = await withDb();
+  await settingsCol(db).updateOne(
+    { _id: "app" },
+    { $set: { autoRefresh: enabled, updatedAt: new Date() } },
+    { upsert: true },
+  );
+  return { autoRefresh: enabled };
 }
 
 export async function deleteFeed(id: string) {

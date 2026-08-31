@@ -40,6 +40,12 @@ export type ItemDoc = {
   updatedAt: Date;
 };
 
+export type AppSettingsDoc = {
+  _id: "app";
+  autoRefresh: boolean;
+  updatedAt: Date;
+};
+
 let indexesReady = false;
 
 export function feedsCol(db: Db): Collection<FeedDoc> {
@@ -48,6 +54,10 @@ export function feedsCol(db: Db): Collection<FeedDoc> {
 
 export function itemsCol(db: Db): Collection<ItemDoc> {
   return db.collection<ItemDoc>("items");
+}
+
+export function settingsCol(db: Db): Collection<AppSettingsDoc> {
+  return db.collection<AppSettingsDoc>("settings");
 }
 
 export async function ensureIndexes(db: Db) {
