@@ -8,7 +8,7 @@ An RSS subscription reader built with Next.js and MongoDB for articles, YouTube 
 
 - Add RSS / Atom feeds, or paste a YouTube channel, `@handle`, or playlist URL (converted to the official RSS feed automatically)
 - Top navigation: All / Articles / Videos / Podcasts / Favorites / Subscriptions
-- UI language: English (default) or Chinese — switch anytime from the top nav (`EN` / `中文`); preference is saved in a cookie
+- UI language: English (default) or Chinese — choose from the language dropdown in the top nav; preference is saved in a cookie
 - Timeline reading, embedded YouTube playback, and podcast audio playback
 - Unread, favorites, refresh all, and search by title
 - Items deduplicated by `{feedId, guid}` so refresh does not overwrite read status

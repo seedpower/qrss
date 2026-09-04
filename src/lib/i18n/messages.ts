@@ -142,7 +142,7 @@ const en: Messages = {
     refreshAll: "Refresh all",
     refreshing: "Refreshing…",
     language: "Language",
-    langEn: "EN",
+    langEn: "English",
     langZh: "中文",
   },
   kind: {
@@ -283,7 +283,7 @@ const zhCN: Messages = {
     refreshAll: "刷新全部",
     refreshing: "刷新中…",
     language: "语言",
-    langEn: "EN",
+    langEn: "English",
     langZh: "中文",
   },
   kind: {
