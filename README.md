@@ -1,18 +1,18 @@
 # QRSS
 
-用 Next.js 和 MongoDB 做的 RSS 订阅阅读器：文章、YouTube 视频、播客，顶部导航切换。
+An RSS subscription reader built with Next.js and MongoDB for articles, YouTube videos, and podcasts — switch views from the top nav.
 
-## 功能
+## Features
 
-- 添加 RSS / Atom，或直接粘贴 YouTube 频道、`@handle`、播放列表链接（自动转官方 RSS）
-- 顶部导航：全部 / 文章 / 视频 / 播客 / 收藏 / 订阅
-- 时间线阅读、YouTube 内嵌播放、播客音频播放
-- 未读、收藏、刷新全部、按标题搜索
-- 条目按 `{feedId, guid}` 去重，刷新不会覆盖已读状态
+- Add RSS / Atom feeds, or paste a YouTube channel, `@handle`, or playlist URL (converted to the official RSS feed automatically)
+- Top navigation: All / Articles / Videos / Podcasts / Favorites / Subscriptions
+- Timeline reading, embedded YouTube playback, and podcast audio playback
+- Unread, favorites, refresh all, and search by title
+- Items deduplicated by `{feedId, guid}` so refresh does not overwrite read status
 
-## 启动
+## Getting started
 
-需要 Docker（本机 MongoDB）和 Node 22+。
+Requires Docker (local MongoDB) and Node 22+.
 
 ```bash
 cp .env.example .env.local
@@ -21,15 +21,15 @@ npm run db:up
 npm run dev
 ```
 
-打开 [http://localhost:3000](http://localhost:3000)，进入「订阅」添加源。可点页面上的示例（阮一峰、Hacker News、少数派、Fireship、The Vergecast）。
+Open [http://localhost:3000](http://localhost:3000) and go to **Subscriptions** to add feeds. You can also use the sample links on the page (Ruanyifeng, Hacker News, SSPAI, Fireship, The Vergecast).
 
-## 环境变量
+## Environment variables
 
-| 变量 | 说明 |
+| Variable | Description |
 | --- | --- |
-| `MONGODB_URI` | 默认 `mongodb://127.0.0.1:27017/qrss` |
+| `MONGODB_URI` | Defaults to `mongodb://127.0.0.1:27017/qrss` |
 
-数据模型：
+Data model:
 
-- `feeds`：订阅源元数据（标题、类型、未读数）
-- `items`：文章 / 视频 / 播客条目（与源一对多引用，避免把无界条目嵌进源文档）
+- `feeds`: subscription metadata (title, type, unread count)
+- `items`: article / video / podcast entries (many-to-one reference to feeds, so unbounded items are not embedded in feed documents)
