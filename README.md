@@ -1,5 +1,7 @@
 # QRSS
 
+[English](README.md) | [中文](README.zh-CN.md)
+
 An RSS subscription reader built with Next.js and MongoDB for articles, YouTube videos, and podcasts — switch views from the top nav.
 
 ## Features
