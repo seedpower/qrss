@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/EmptyState";
 import { FeedHeader } from "@/components/FeedHeader";
 import { FeedStream } from "@/components/FeedStream";
+import { getTranslator } from "@/lib/i18n/server";
 import { getFeed, listItems } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +13,8 @@ export default async function FeedDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [feed, items] = await Promise.all([
+  const [{ t }, feed, items] = await Promise.all([
+    getTranslator(),
     getFeed(id),
     listItems({ feedId: id, limit: 30 }),
   ]);
@@ -23,10 +25,10 @@ export default async function FeedDetailPage({
       <FeedHeader feed={feed} />
       {items.length === 0 ? (
         <EmptyState
-          title="这个源还没有条目"
-          description="点右上角刷新，或检查订阅地址是否可访问。"
+          title={t.feedDetail.emptyTitle}
+          description={t.feedDetail.emptyDescription}
           actionHref="/feeds"
-          actionLabel="返回订阅"
+          actionLabel={t.feedDetail.backToFeeds}
         />
       ) : (
         <FeedStream

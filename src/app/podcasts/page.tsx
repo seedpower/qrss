@@ -1,14 +1,16 @@
 import { StreamPage } from "@/components/StreamPage";
+import { getTranslator } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
-export default function PodcastsPage() {
+export default async function PodcastsPage() {
+  const { t } = await getTranslator();
   return (
     <StreamPage
-      title="播客"
-      description="带音频 enclosure 的 RSS 会出现在这里，可直接在条目页播放。"
-      emptyTitle="还没有播客"
-      emptyDescription="添加一个播客 RSS，例如 The Vergecast。"
+      title={t.podcasts.title}
+      description={t.podcasts.description}
+      emptyTitle={t.podcasts.emptyTitle}
+      emptyDescription={t.podcasts.emptyDescription}
       kind="podcast"
     />
   );

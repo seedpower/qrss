@@ -1,3 +1,6 @@
+"use client";
+
+import { useLocale } from "@/components/LocaleProvider";
 import { geminiVideoSummaryUrl } from "@/lib/format";
 
 export function GeminiSummaryLink({
@@ -7,14 +10,15 @@ export function GeminiSummaryLink({
   videoId: string;
   className?: string;
 }) {
+  const { locale, t } = useLocale();
   return (
     <a
-      href={geminiVideoSummaryUrl(videoId)}
+      href={geminiVideoSummaryUrl(videoId, locale)}
       target="_blank"
       rel="noopener noreferrer"
       className={className}
     >
-      视频总结
+      {t.item.videoSummary}
     </a>
   );
 }

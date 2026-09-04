@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "@/components/LocaleProvider";
 import type { Item } from "@/lib/types";
 import { ItemList } from "./ItemList";
 import { VideoGrid } from "./VideoGrid";
@@ -22,6 +23,7 @@ export function FeedStream({
   q,
   layout = "list",
 }: LoadMoreProps) {
+  const { t } = useLocale();
   const [items, setItems] = useState(initialItems);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(initialItems.length < 30);
@@ -63,7 +65,7 @@ export function FeedStream({
             disabled={loading}
             className="rounded-full border border-ink/15 px-5 py-2 text-sm text-ink/70 hover:bg-white disabled:opacity-50"
           >
-            {loading ? "加载中…" : "加载更多"}
+            {loading ? t.stream.loading : t.stream.loadMore}
           </button>
         </div>
       )}

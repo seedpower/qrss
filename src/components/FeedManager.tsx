@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { useLocale } from "@/components/LocaleProvider";
 import { parseFeedCsv } from "@/lib/csv";
 import { EXAMPLE_FEEDS } from "@/lib/examples";
 import { formatRelativeTime, kindLabel } from "@/lib/format";
@@ -16,6 +17,7 @@ type ImportProgress = {
 
 export function FeedManager({ feeds }: { feeds: Feed[] }) {
   const router = useRouter();
+  const { locale, t } = useLocale();
   const fileRef = useRef<HTMLInputElement>(null);
   const [url, setUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -38,14 +40,14 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
       });
       const data = (await res.json()) as { error?: string };
       if (!res.ok) {
-        setError(data.error || "添加失败");
+        setError(data.error || t.feeds.addFailed);
         return;
       }
       setUrl("");
       setNotice(null);
       router.refresh();
     } catch {
-      setError("网络错误，请稍后重试");
+      setError(t.feeds.networkError);
     } finally {
       setBusy(false);
     }
@@ -58,16 +60,22 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
     try {
       rows = parseFeedCsv(await file.text());
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "CSV 解析失败");
+      setError(
+        caught instanceof Error ? caught.message : t.feeds.csvParseFailed,
+      );
       return;
     }
     if (rows.length === 0) {
-      setError("CSV 里没有有效的订阅地址");
+      setError(t.feeds.csvEmpty);
       return;
     }
 
     setBusy(true);
-    setImportProgress({ done: 0, total: rows.length, current: rows[0].name || rows[0].url });
+    setImportProgress({
+      done: 0,
+      total: rows.length,
+      current: rows[0].name || rows[0].url,
+    });
     let created = 0;
     let skipped = 0;
     const failures: string[] = [];
@@ -90,24 +98,27 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
               skipIfExists: true,
             }),
           });
-          const data = (await res.json()) as { created?: boolean; error?: string };
+          const data = (await res.json()) as {
+            created?: boolean;
+            error?: string;
+          };
           if (!res.ok) {
-            failures.push(`${row.name || row.url}：${data.error || "添加失败"}`);
+            failures.push(
+              `${row.name || row.url}: ${data.error || t.feeds.addFailed}`,
+            );
           } else if (data.created) {
             created += 1;
           } else {
             skipped += 1;
           }
         } catch {
-          failures.push(`${row.name || row.url}：网络错误`);
+          failures.push(`${row.name || row.url}: ${t.feeds.networkError}`);
         }
       }
 
-      const parts = [`新增 ${created}`, `已存在 ${skipped}`];
-      if (failures.length > 0) parts.push(`失败 ${failures.length}`);
-      setNotice(`导入完成：${parts.join("，")}`);
+      setNotice(t.feeds.importDone(created, skipped, failures.length));
       if (failures.length > 0) {
-        setError(failures.slice(0, 8).join("；"));
+        setError(failures.slice(0, 8).join("; "));
       }
       router.refresh();
     } finally {
@@ -128,7 +139,7 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
   }
 
   async function remove(id: string, title: string) {
-    if (!confirm(`取消订阅「${title}」？其中的条目也会被删除。`)) return;
+    if (!confirm(t.feeds.confirmUnsubscribe(title))) return;
     setBusyId(id);
     try {
       await fetch(`/api/feeds/${id}`, { method: "DELETE" });
@@ -147,15 +158,15 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
         }}
         className="rounded-2xl border border-ink/10 bg-white/80 p-5 shadow-sm"
       >
-        <label className="block font-serif text-xl text-ink">添加订阅</label>
-        <p className="mt-1 text-sm text-ink/55">
-          支持文章 RSS、Atom、播客 RSS，以及 YouTube 频道 / @handle / 播放列表链接。
-        </p>
+        <label className="block font-serif text-xl text-ink">
+          {t.feeds.addTitle}
+        </label>
+        <p className="mt-1 text-sm text-ink/55">{t.feeds.addHint}</p>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <input
             value={url}
             onChange={(event) => setUrl(event.target.value)}
-            placeholder="https://example.com/feed.xml 或 https://www.youtube.com/@handle"
+            placeholder={t.feeds.urlPlaceholder}
             className="min-w-0 flex-1 rounded-full border border-ink/15 bg-paper px-4 py-2.5 text-sm outline-none focus:border-rust"
           />
           <button
@@ -163,15 +174,22 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
             disabled={busy}
             className="rounded-full bg-ink px-5 py-2.5 text-sm text-cream hover:bg-ink/90 disabled:opacity-50"
           >
-            {busy ? (importProgress ? "导入中…" : "解析中…") : "订阅"}
+            {busy
+              ? importProgress
+                ? t.feeds.importing
+                : t.feeds.parsing
+              : t.feeds.subscribe}
           </button>
         </div>
         {error && <p className="mt-3 text-sm text-rust">{error}</p>}
         {notice && <p className="mt-3 text-sm text-ink/70">{notice}</p>}
         {importProgress && (
           <p className="mt-3 text-sm text-ink/55">
-            导入中 {importProgress.done + 1}/{importProgress.total}
-            {importProgress.current ? ` · ${importProgress.current}` : ""}
+            {t.feeds.importProgress(
+              importProgress.done,
+              importProgress.total,
+              importProgress.current,
+            )}
           </p>
         )}
         <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -191,21 +209,19 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
             onClick={() => fileRef.current?.click()}
             className="rounded-full border border-ink/15 px-4 py-2 text-sm hover:border-rust/40 hover:text-rust disabled:opacity-50"
           >
-            导入 CSV
+            {t.feeds.importCsv}
           </button>
-          <a
+          <Link
             href="/api/feeds/export"
             className={`rounded-full border border-ink/15 px-4 py-2 text-sm hover:border-rust/40 hover:text-rust ${
               feeds.length === 0 ? "pointer-events-none opacity-50" : ""
             }`}
             aria-disabled={feeds.length === 0}
+            prefetch={false}
           >
-            导出 CSV
-          </a>
-          <p className="text-xs text-ink/50">
-            两列 <code className="text-ink/70">name,rss</code>
-            ，导入时已订阅的会跳过。UTF-8 编码。
-          </p>
+            {t.feeds.exportCsv}
+          </Link>
+          <p className="text-xs text-ink/50">{t.feeds.csvHint}</p>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           {EXAMPLE_FEEDS.map((example) => (
@@ -219,7 +235,8 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
               }}
               className="rounded-full border border-ink/10 bg-paper px-3 py-1 text-xs text-ink/70 hover:border-rust/40 hover:text-rust"
             >
-              {example.hint} · {example.title}
+              {kindLabel(example.kind === "youtube" ? "youtube" : example.kind, locale)}{" "}
+              · {example.title}
             </button>
           ))}
         </div>
@@ -247,14 +264,19 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <Link href={`/feeds/${feed.id}`} className="font-medium hover:text-rust">
+              <Link
+                href={`/feeds/${feed.id}`}
+                className="font-medium hover:text-rust"
+              >
                 {feed.title}
               </Link>
               <p className="mt-0.5 truncate text-xs text-ink/50">
-                {kindLabel(feed.kind)} · {feed.itemCount} 条
-                {feed.unreadCount > 0 ? ` · ${feed.unreadCount} 未读` : ""}
+                {kindLabel(feed.kind, locale)} · {t.feeds.itemsCount(feed.itemCount)}
+                {feed.unreadCount > 0
+                  ? ` · ${t.feeds.unreadCount(feed.unreadCount)}`
+                  : ""}
                 {feed.lastFetchedAt
-                  ? ` · 更新于 ${formatRelativeTime(feed.lastFetchedAt)}`
+                  ? ` · ${t.feeds.updatedAt(formatRelativeTime(feed.lastFetchedAt, locale))}`
                   : ""}
               </p>
               {feed.lastError && (
@@ -268,7 +290,7 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
                 onClick={() => refresh(feed.id)}
                 className="rounded-full border border-ink/15 px-3 py-1 text-xs hover:bg-paper"
               >
-                {busyId === feed.id ? "…" : "刷新"}
+                {busyId === feed.id ? "…" : t.feeds.refresh}
               </button>
               <button
                 type="button"
@@ -276,7 +298,7 @@ export function FeedManager({ feeds }: { feeds: Feed[] }) {
                 onClick={() => remove(feed.id, feed.title)}
                 className="rounded-full border border-ink/15 px-3 py-1 text-xs text-ink/60 hover:border-rust/40 hover:text-rust"
               >
-                取消
+                {t.feeds.unsubscribe}
               </button>
             </div>
           </div>

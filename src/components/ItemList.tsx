@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/components/LocaleProvider";
 import { formatRelativeTime, kindLabel } from "@/lib/format";
 import type { Item } from "@/lib/types";
 import { GeminiSummaryLink } from "./GeminiSummaryLink";
@@ -15,6 +16,7 @@ export function ItemRow({
   priority?: boolean;
 }) {
   const router = useRouter();
+  const { locale, t } = useLocale();
 
   function markRead() {
     if (item.read) return;
@@ -55,10 +57,10 @@ export function ItemRow({
               {item.feedTitle}
             </Link>
             <span>·</span>
-            <span>{kindLabel(item.kind)}</span>
+            <span>{kindLabel(item.kind, locale)}</span>
             <span>·</span>
             <time dateTime={item.publishedAt}>
-              {formatRelativeTime(item.publishedAt)}
+              {formatRelativeTime(item.publishedAt, locale)}
             </time>
           </div>
           <h2 className="mt-1 font-serif text-xl leading-snug text-ink">
@@ -83,7 +85,7 @@ export function ItemRow({
                 rel="noopener noreferrer"
                 className="text-xs text-ink/45 hover:text-rust"
               >
-                原文
+                {t.item.original}
               </a>
             </div>
           </div>

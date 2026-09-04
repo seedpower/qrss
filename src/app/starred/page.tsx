@@ -1,14 +1,16 @@
 import { StreamPage } from "@/components/StreamPage";
+import { getTranslator } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
-export default function StarredPage() {
+export default async function StarredPage() {
+  const { t } = await getTranslator();
   return (
     <StreamPage
-      title="收藏"
-      description="标了星的文章、视频和播客。"
-      emptyTitle="还没有收藏"
-      emptyDescription="在时间线里点「收藏」，稍后可以回到这里看。"
+      title={t.starred.title}
+      description={t.starred.description}
+      emptyTitle={t.starred.emptyTitle}
+      emptyDescription={t.starred.emptyDescription}
       starred
     />
   );

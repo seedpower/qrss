@@ -1,14 +1,16 @@
 import { StreamPage } from "@/components/StreamPage";
+import { getTranslator } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
-export default function VideosPage() {
+export default async function VideosPage() {
+  const { t } = await getTranslator();
   return (
     <StreamPage
-      title="视频"
-      description="YouTube 频道与播放列表会自动转成官方 RSS。"
-      emptyTitle="还没有视频"
-      emptyDescription="在订阅页粘贴 YouTube 频道、@handle 或播放列表链接。"
+      title={t.videos.title}
+      description={t.videos.description}
+      emptyTitle={t.videos.emptyTitle}
+      emptyDescription={t.videos.emptyDescription}
       kind="youtube"
       layout="grid"
     />

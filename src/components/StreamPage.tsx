@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { FeedStream } from "@/components/FeedStream";
+import { getTranslator } from "@/lib/i18n/server";
 import { listItems } from "@/lib/queries";
 import type { FeedKind } from "@/lib/types";
 
@@ -37,10 +38,17 @@ async function StreamItems({
   q,
   layout = "list",
 }: Omit<StreamPageProps, "title" | "description">) {
+  const { t } = await getTranslator();
   const items = await listItems({ kind, feedId, starred, q, limit: 30 });
 
   if (items.length === 0) {
-    return <EmptyState title={emptyTitle} description={emptyDescription} />;
+    return (
+      <EmptyState
+        title={emptyTitle}
+        description={emptyDescription}
+        actionLabel={t.empty.addFeed}
+      />
+    );
   }
 
   return (

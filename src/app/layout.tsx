@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Suspense } from "react";
+import { LocaleProvider } from "@/components/LocaleProvider";
 import { Nav } from "@/components/Nav";
+import { localeToBcp47 } from "@/lib/i18n/config";
+import { getTranslator } from "@/lib/i18n/server";
 import { navCounts } from "@/lib/queries";
 import "./globals.css";
 
@@ -11,10 +14,13 @@ const geistSans = Geist({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "QRSS · 订阅阅读",
-  description: "用 Next.js 与 MongoDB 管理 RSS 文章、YouTube 视频与播客。",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslator();
+  return {
+    title: t.meta.title,
+    description: t.meta.description,
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -30,14 +36,27 @@ async function NavWithCounts() {
   );
 }
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { locale } = await getTranslator();
+
   return (
-    <html lang="zh-CN" className={`${geistSans.variable} h-full antialiased`}>
+    <html
+      lang={localeToBcp47(locale)}
+      className={`${geistSans.variable} h-full antialiased`}
+    >
       <body className="min-h-full bg-paper text-ink">
-        <Suspense fallback={<Nav unread={0} starred={0} feeds={0} />}>
-          <NavWithCounts />
-        </Suspense>
-        <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">{children}</main>
+        <LocaleProvider key={locale} initialLocale={locale}>
+          <Suspense fallback={<Nav unread={0} starred={0} feeds={0} />}>
+            <NavWithCounts />
+          </Suspense>
+          <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+            {children}
+          </main>
+        </LocaleProvider>
       </body>
     </html>
   );

@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/components/LocaleProvider";
 import { formatRelativeTime } from "@/lib/format";
 import type { Item } from "@/lib/types";
 import { GeminiSummaryLink } from "./GeminiSummaryLink";
 
 export function VideoGrid({ items }: { items: Item[] }) {
   const router = useRouter();
+  const { locale } = useLocale();
 
   function markRead(id: string, read: boolean) {
     if (read) return;
@@ -65,7 +67,7 @@ export function VideoGrid({ items }: { items: Item[] }) {
             <Link href={`/feeds/${item.feedId}`} className="hover:text-rust">
               {item.feedTitle}
             </Link>
-            <span> · {formatRelativeTime(item.publishedAt)}</span>
+            <span> · {formatRelativeTime(item.publishedAt, locale)}</span>
           </p>
           {item.videoId && (
             <div className="mt-2">

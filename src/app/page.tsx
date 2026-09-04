@@ -1,4 +1,5 @@
 import { StreamPage } from "@/components/StreamPage";
+import { getTranslator } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -9,20 +10,17 @@ export default async function HomePage({
 }) {
   const { q } = await searchParams;
   const query = q?.trim();
+  const { t } = await getTranslator();
 
   return (
     <StreamPage
-      title={query ? `搜索「${query}」` : "全部更新"}
+      title={query ? t.home.searchTitle(query) : t.home.title}
       description={
-        query
-          ? "按条目标题匹配当前订阅内容。"
-          : "文章、YouTube 视频与播客按发布时间混排。"
+        query ? t.home.searchDescription : t.home.description
       }
-      emptyTitle={query ? "没有匹配的条目" : "还没有内容"}
+      emptyTitle={query ? t.home.searchEmptyTitle : t.home.emptyTitle}
       emptyDescription={
-        query
-          ? "换个关键词，或先去订阅源里加一些 RSS。"
-          : "先添加文章 RSS 或 YouTube 频道，刷新后就会出现在这里。"
+        query ? t.home.searchEmptyDescription : t.home.emptyDescription
       }
       q={query}
     />

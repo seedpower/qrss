@@ -2,10 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useLocale } from "@/components/LocaleProvider";
 import type { Item } from "@/lib/types";
 
 export function ItemActions({ item }: { item: Item }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [starred, setStarred] = useState(item.starred);
   const [read, setRead] = useState(item.read);
   const [busy, setBusy] = useState(false);
@@ -39,7 +41,7 @@ export function ItemActions({ item }: { item: Item }) {
             : "border-ink/15 text-ink/70 hover:bg-ink/5"
         }`}
       >
-        {starred ? "已收藏" : "收藏"}
+        {starred ? t.item.starred : t.item.star}
       </button>
       <button
         type="button"
@@ -47,7 +49,7 @@ export function ItemActions({ item }: { item: Item }) {
         onClick={() => patch({ read: !read })}
         className="rounded-full border border-ink/15 px-3 py-1 text-xs text-ink/70 hover:bg-ink/5"
       >
-        {read ? "标为未读" : "标为已读"}
+        {read ? t.item.markUnread : t.item.markRead}
       </button>
     </div>
   );

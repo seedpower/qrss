@@ -4,14 +4,14 @@ type EmptyStateProps = {
   title: string;
   description: string;
   actionHref?: string;
-  actionLabel?: string;
+  actionLabel: string;
 };
 
 export function EmptyState({
   title,
   description,
   actionHref = "/feeds",
-  actionLabel = "添加订阅",
+  actionLabel,
 }: EmptyStateProps) {
   return (
     <div className="mx-auto max-w-lg rounded-2xl border border-ink/10 bg-white/70 px-8 py-14 text-center shadow-sm">

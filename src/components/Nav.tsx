@@ -3,15 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-
-const links = [
-  { href: "/", label: "全部" },
-  { href: "/articles", label: "文章" },
-  { href: "/videos", label: "视频" },
-  { href: "/podcasts", label: "播客" },
-  { href: "/starred", label: "收藏" },
-  { href: "/feeds", label: "订阅" },
-] as const;
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLocale } from "@/components/LocaleProvider";
 
 type NavProps = {
   unread: number;
@@ -22,9 +15,19 @@ type NavProps = {
 export function Nav({ unread, starred, feeds }: NavProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useLocale();
   const [refreshing, setRefreshing] = useState(false);
   const [pending, startTransition] = useTransition();
   const [query, setQuery] = useState("");
+
+  const links = [
+    { href: "/", label: t.nav.all },
+    { href: "/articles", label: t.nav.articles },
+    { href: "/videos", label: t.nav.videos },
+    { href: "/podcasts", label: t.nav.podcasts },
+    { href: "/starred", label: t.nav.starred },
+    { href: "/feeds", label: t.nav.feeds },
+  ] as const;
 
   async function refreshAll() {
     setRefreshing(true);
@@ -108,10 +111,12 @@ export function Nav({ unread, starred, feeds }: NavProps) {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="搜索标题…"
+              placeholder={t.nav.searchPlaceholder}
               className="w-32 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-cream outline-none placeholder:text-cream/40 focus:border-rust/70 lg:w-44"
             />
           </form>
+
+          <LanguageSwitcher />
 
           <button
             type="button"
@@ -119,7 +124,7 @@ export function Nav({ unread, starred, feeds }: NavProps) {
             disabled={refreshing || pending}
             className="rounded-full border border-white/15 px-3 py-1.5 text-sm text-cream/90 transition hover:bg-white/10 disabled:opacity-50"
           >
-            {refreshing ? "刷新中…" : "刷新全部"}
+            {refreshing ? t.nav.refreshing : t.nav.refreshAll}
           </button>
         </div>
       </div>

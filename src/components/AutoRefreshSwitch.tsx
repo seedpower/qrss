@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useLocale } from "@/components/LocaleProvider";
 
 export function AutoRefreshSwitch({ enabled }: { enabled: boolean }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [on, setOn] = useState(enabled);
   const [busy, setBusy] = useState(false);
 
@@ -40,8 +42,8 @@ export function AutoRefreshSwitch({ enabled }: { enabled: boolean }) {
       className="flex items-center gap-3 rounded-full border border-ink/15 bg-white/80 px-4 py-2 text-left disabled:opacity-50"
     >
       <span className="min-w-0">
-        <span className="block text-sm text-ink">自动刷新</span>
-        <span className="block text-xs text-ink/50">每 10 分钟拉取全部订阅</span>
+        <span className="block text-sm text-ink">{t.feeds.autoRefresh}</span>
+        <span className="block text-xs text-ink/50">{t.feeds.autoRefreshHint}</span>
       </span>
       <span
         className={`relative h-6 w-11 shrink-0 rounded-full transition ${
